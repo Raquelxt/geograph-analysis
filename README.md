@@ -5,12 +5,12 @@ GeoGraph-Analysis is a basic C++ tool for creating and analyzing graphs with geo
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/GeoGraph-Analysis.git
+   git clone https://github.com/Raquelxt/geograph-analysis.git
 
    ```
 2. Compile the code:
    ```bash
-   g++ main.cpp -o GeoGraph-Analysis
+   g++ main.cpp -o geograph-analysis
    ```
 
 ## Usage
@@ -25,11 +25,3 @@ Run the program with:
 ## Features
 - Graph creation with locations and connections
 - Pathfinding and simple graph analysis
-
-## License
-This project is licensed under the MIT License.
-```
-
---- 
-
-This version is a bit more structured while still being clear and concise. Let me know if you'd like any additional changes!
