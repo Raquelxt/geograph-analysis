@@ -4,34 +4,32 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 class Graph {
-private:
-    std::unordered_map<std::string, std::vector<std::string>> adjacencyList;
-
-    std::unordered_map<std::string, std::vector<std::string>> generateSubgraph(const std::vector<std::string>& vertices);
-    std::unordered_map<std::string, int> calculateBalance(const std::unordered_map<std::string, std::vector<std::string>>& subgraph);
-    void transformToEulerian(std::unordered_map<std::string, std::vector<std::string>>& subgraph, std::unordered_map<std::string, int>& balance);
-    int bfsDistance(const std::unordered_map<std::string, std::vector<std::string>>& graph, const std::string& source, const std::string& target);
-    std::vector<std::string> findEulerianCycle(const std::unordered_map<std::string, std::vector<std::string>>& subgraph);
-
 public:
-    std::vector<std::string> findEulerianCycleFromStart(
-        const std::unordered_map<std::string, std::vector<std::string>>& subgraph,
-        const std::string& startNode
-    );
+    // Métodos básicos de construção do grafo
     void addNode(const std::string& location);
     void addEdge(const std::string& from, const std::string& to);
+
+    // Algoritmos e funcionalidades específicas
     std::string findCapital();
     std::vector<std::string> findSecondaryBattalions();
     std::vector<std::vector<std::string>> findPatrolRoutes();
     std::vector<std::vector<std::string>> findConnectedComponents();
+
+private:
+    // Estrutura principal de representação do grafo
+    std::unordered_map<std::string, std::vector<std::string>> adjacencyList;
+
+    // Métodos auxiliares
     std::unordered_map<std::string, std::vector<std::string>> transposeGraph();
+    std::unordered_map<std::string, int> calculateBalance(const std::unordered_map<std::string, std::vector<std::string>>& subgraph);
+    std::unordered_map<std::string, std::vector<std::string>> generateSubgraph(const std::vector<std::string>& vertices);
+    int bfsDistance(const std::unordered_map<std::string, std::vector<std::string>>& graph, const std::string& source, const std::string& target);
+    void transformToEulerian(std::unordered_map<std::string, std::vector<std::string>>& subgraph, std::unordered_map<std::string, int>& balance);
+    std::vector<std::string> findEulerianCycleFromStart(const std::unordered_map<std::string, std::vector<std::string>>& subgraph, const std::string& startNode);
+    std::vector<std::string> findEulerianCycle(const std::unordered_map<std::string, std::vector<std::string>>& subgraph);
 };
 
-class HungarianAlgorithm {
-public:
-    std::vector<int> solve(const std::vector<std::vector<int>>& costMatrix);
-};
-
-#endif
+#endif // GRAPH_HPP

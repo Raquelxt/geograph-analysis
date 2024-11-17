@@ -33,18 +33,18 @@ int main() {
         graph.addEdge(from, to);
     }
 
-    // Capital
+    // Imprime a Capital
     std::string capital = graph.findCapital();
     std::cout << capital << std::endl;
 
-    // Batalhões Secundários
+    // Imprime os Batalhões Secundários
     auto secondaryBattalions = graph.findSecondaryBattalions();
     std::cout << secondaryBattalions.size() << std::endl;
     for (const auto& battalion : secondaryBattalions) {
         std::cout << battalion << std::endl;
     }
 
-    // Rotas de Patrulhamento
+    // Imprime as Rotas de Patrulhamento
     auto patrolRoutes = graph.findPatrolRoutes();
     std::cout << patrolRoutes.size() << std::endl;
     for (const auto& route : patrolRoutes) {
