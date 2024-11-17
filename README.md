@@ -58,7 +58,7 @@ GeoGraph-Analysis/
 Run the following command to compile:
 
 ```bash
-make
+make all
 ```
 
 ### Execute the program
