@@ -33,10 +33,11 @@ GeoGraph-Analysis/
 │   ├── HungarianAlgorithm.cpp
 │   ├── Utils.cpp
 │
-├── tests/                  # Test cases
-│   ├── input1.txt
-│   ├── input2.txt
-│   ├── ...
+├── tests/
+│   ├── inputs              # Test cases
+│   │   ├── testCase01.txt
+│   │   ├── testCase02.txt
+│   │   ├── ...
 │
 ├── Makefile                # Compilation script
 ├── README.md               # Project documentation
