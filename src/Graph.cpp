@@ -3,7 +3,6 @@
 #include <limits>
 #include <unordered_map>
 #include <stack>
-#include <algorithm>
 #include <iostream>
 
 // Adiciona um nó ao grafo
@@ -63,6 +62,46 @@ std::string Graph::findCapital() {
         }
     }
     return bestNode;
+}
+
+// Função para encontrar elemento em vetor
+bool contains(const std::vector<std::string>& vec, const std::string& value) {
+    for (const auto& item : vec) {
+        if (item == value) return true;
+    }
+    return false;
+}
+
+// Função para ordenar vetor de strings
+void sortStrings(std::vector<std::string>& vec) {
+    for (size_t i = 0; i < vec.size(); ++i) {
+        for (size_t j = i + 1; j < vec.size(); ++j) {
+            if (vec[i] > vec[j]) {
+                std::swap(vec[i], vec[j]);
+            }
+        }
+    }
+}
+
+// Função para ordenar vetor de vetores de strings
+void sortRoutes(std::vector<std::vector<std::string>>& routes) {
+    for (size_t i = 0; i < routes.size(); ++i) {
+        for (size_t j = i + 1; j < routes.size(); ++j) {
+            if (routes[i] > routes[j]) {
+                std::swap(routes[i], routes[j]);
+            }
+        }
+    }
+}
+
+// Função para reverter vetor
+void reverseVector(std::vector<std::string>& vec) {
+    size_t start = 0, end = vec.size() - 1;
+    while (start < end) {
+        std::swap(vec[start], vec[end]);
+        ++start;
+        --end;
+    }
 }
 
 // Algoritmo de Kosaraju para encontrar componentes fortemente conectadas
@@ -154,6 +193,7 @@ void Graph::ensureEulerian(std::unordered_map<std::string, std::vector<std::stri
     }
 }
 
+// Encontra os batalhões secundários
 std::vector<std::string> Graph::findSecondaryBattalions() {
     std::vector<std::string> secondaryBattalions;
     std::string capital = findCapital();
@@ -182,7 +222,7 @@ std::vector<std::string> Graph::findSecondaryBattalions() {
     }
 
     for (const auto& component : components) {
-        if (std::find(component.begin(), component.end(), capital) != component.end()) {
+        if (contains(component, capital)) {
             continue; // Ignorar componente que contém a capital.
         }
 
@@ -199,32 +239,33 @@ std::vector<std::string> Graph::findSecondaryBattalions() {
         }
     }
 
-    std::sort(secondaryBattalions.begin(), secondaryBattalions.end());
+    sortStrings(secondaryBattalions);
     return secondaryBattalions;
 }
 
 // Encontra o ciclo Euleriano
 std::vector<std::string> Graph::findEulerianCycle(const std::unordered_map<std::string, std::vector<std::string>>& subgraph) {
     std::unordered_map<std::string, std::vector<std::string>> tempGraph = subgraph;
-    std::vector<std::string> cycle;
-    std::stack<std::string> stack;
+    std::stack<std::string> currentPath;
+    std::vector<std::string> eulerianCycle;
 
-    auto it = tempGraph.begin();
-    stack.push(it->first);
+    std::string startNode = tempGraph.begin()->first;
+    currentPath.push(startNode);
 
-    while (!stack.empty()) {
-        std::string node = stack.top();
-        if (!tempGraph[node].empty()) {
-            stack.push(tempGraph[node].back());
-            tempGraph[node].pop_back();
+    while (!currentPath.empty()) {
+        std::string current = currentPath.top();
+
+        if (!tempGraph[current].empty()) {
+            currentPath.push(tempGraph[current].back());
+            tempGraph[current].pop_back();
         } else {
-            cycle.push_back(node);
-            stack.pop();
+            eulerianCycle.push_back(current);
+            currentPath.pop();
         }
     }
 
-    std::reverse(cycle.begin(), cycle.end());
-    return cycle;
+    reverseVector(eulerianCycle);
+    return eulerianCycle;
 }
 
 // Encontra as rotas de patrulha
@@ -240,12 +281,35 @@ std::vector<std::vector<std::string>> Graph::findPatrolRoutes() {
             subgraph[node] = adjacencyList[node];
         }
 
-        ensureEulerian(subgraph);
+        // Verificar se o grafo é Euleriano
+        std::unordered_map<std::string, int> inDegree, outDegree;
+        for (const auto& pair : subgraph) {
+            outDegree[pair.first] = pair.second.size();
+            for (const auto& neighbor : pair.second) {
+                inDegree[neighbor]++;
+            }
+        }
 
+        bool isEulerian = true;
+        for (const auto& pair : subgraph) {
+            if (inDegree[pair.first] != outDegree[pair.first]) {
+                isEulerian = false;
+                break;
+            }
+        }
+
+        // Transformar em Euleriano, se necessário
+        if (!isEulerian) {
+            ensureEulerian(subgraph);
+        }
+
+        // Gerar o ciclo Euleriano
         auto cycle = findEulerianCycle(subgraph);
-        routes.push_back(cycle);
+        if (!cycle.empty()) {
+            routes.push_back(cycle);
+        }
     }
 
-    std::sort(routes.begin(), routes.end());
+    sortRoutes(routes);
     return routes;
 }
