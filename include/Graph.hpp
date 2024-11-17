@@ -16,6 +16,10 @@ private:
     std::vector<std::string> findEulerianCycle(const std::unordered_map<std::string, std::vector<std::string>>& subgraph);
 
 public:
+    std::vector<std::string> findEulerianCycleFromStart(
+        const std::unordered_map<std::string, std::vector<std::string>>& subgraph,
+        const std::string& startNode
+    );
     void addNode(const std::string& location);
     void addEdge(const std::string& from, const std::string& to);
     std::string findCapital();

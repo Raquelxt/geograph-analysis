@@ -4,6 +4,7 @@
 #include <stack>
 #include <limits>
 #include <iostream>
+#include <unordered_set>
 
 // Algoritmo de Kosaraju para encontrar componentes fortemente conectadas
 std::vector<std::vector<std::string>> Graph::findConnectedComponents() {
@@ -232,43 +233,91 @@ std::vector<std::string> Graph::findSecondaryBattalions() {
 }
 
 // Função para encontrar rotas de patrulhamento
-// Função para encontrar rotas de patrulhamento
 std::vector<std::vector<std::string>> Graph::findPatrolRoutes() {
-    std::vector<std::vector<std::string>> routes;
-    auto components = findConnectedComponents();
+    std::vector<std::vector<std::string>> routes; // Armazena todas as rotas
+    auto components = findConnectedComponents(); // Obter as CFCs
+
+    // Identificar os batalhões (capital e secundários)
+    std::string capital = findCapital();
+    std::vector<std::string> secondaryBattalions = findSecondaryBattalions();
+    std::unordered_set<std::string> allBattalions(secondaryBattalions.begin(), secondaryBattalions.end());
+    allBattalions.insert(capital);
 
     for (const auto& component : components) {
-        if (component.size() <= 1) continue;
+        if (component.size() <= 1) continue; // Ignorar CFCs com apenas 1 nó
 
+        // Gerar subgrafo para a CFC atual
         auto subgraph = generateSubgraph(component);
+
+        // Verificar balanceamento dos vértices
         auto balance = calculateBalance(subgraph);
 
+        // Transformar em Euleriano, se necessário
         bool isEulerian = true;
         for (const auto& pair : balance) {
-            if (pair.second != 0) {
+            if (pair.second != 0) { // Balanceamento diferente de 0
                 isEulerian = false;
                 break;
             }
         }
 
         if (!isEulerian) {
-            transformToEulerian(subgraph, balance);
+            transformToEulerian(subgraph, balance); // Tornar Euleriano
         }
 
-        auto cycle = findEulerianCycle(subgraph);
-        if (!cycle.empty()) {
-            // Ordenar o ciclo para atender ao formato esperado
-            if (cycle.front() != cycle.back()) {
-                cycle.push_back(cycle.front());
+        // Escolher o nó inicial para o ciclo Euleriano
+        std::string startNode;
+        for (const auto& node : component) {
+            if (allBattalions.count(node)) {
+                startNode = node; // Priorizar um batalhão
+                break;
             }
+        }
+
+        // Se nenhum nó do batalhão estiver presente, use o primeiro nó da componente
+        if (startNode.empty()) {
+            startNode = component.front();
+        }
+
+        // Criar rota Euleriana usando Hierholzer a partir de startNode
+        auto cycle = findEulerianCycleFromStart(subgraph, startNode);
+        if (!cycle.empty()) {
             routes.push_back(cycle);
         }
     }
 
-    // Ordenar as rotas para saída correta
+    // Ordenar rotas lexicograficamente para saída correta
     sortRoutes(routes);
     return routes;
 }
+
+std::vector<std::string> Graph::findEulerianCycleFromStart(
+    const std::unordered_map<std::string, std::vector<std::string>>& subgraph,
+    const std::string& startNode) {
+    std::unordered_map<std::string, std::vector<std::string>> tempGraph = subgraph;
+    std::stack<std::string> currentPath;
+    std::vector<std::string> eulerianCycle;
+
+    currentPath.push(startNode);
+
+    while (!currentPath.empty()) {
+        std::string current = currentPath.top();
+
+        if (!tempGraph[current].empty()) {
+            currentPath.push(tempGraph[current].back());
+            tempGraph[current].pop_back();
+        } else {
+            eulerianCycle.push_back(current);
+            currentPath.pop();
+        }
+    }
+
+    if (eulerianCycle.front() != eulerianCycle.back()) {
+        eulerianCycle.push_back(eulerianCycle.front()); // Fechar ciclo
+    }
+    return eulerianCycle;
+}
+
 
 // Gera o subgrafo
 std::unordered_map<std::string, std::vector<std::string>> Graph::generateSubgraph(const std::vector<std::string>& vertices) {
@@ -303,31 +352,34 @@ std::unordered_map<std::string, int> Graph::calculateBalance(const std::unordere
 }
 
 // Transforma subgrafo em Euleriano
-void Graph::transformToEulerian(std::unordered_map<std::string, std::vector<std::string>>& subgraph, std::unordered_map<std::string, int>& balance) {
+void Graph::transformToEulerian(std::unordered_map<std::string, std::vector<std::string>>& subgraph, 
+                                std::unordered_map<std::string, int>& balance) {
     std::vector<std::string> positiveBalance, negativeBalance;
 
+    // Separar os vértices com balanço positivo e negativo
     for (const auto& pair : balance) {
         if (pair.second > 0) {
-            for (int i = 0; i < pair.second; ++i) {
-                positiveBalance.push_back(pair.first);
-            }
+            positiveBalance.insert(positiveBalance.end(), pair.second, pair.first);
         } else if (pair.second < 0) {
-            for (int i = 0; i < -pair.second; ++i) {
-                negativeBalance.push_back(pair.first);
-            }
+            negativeBalance.insert(negativeBalance.end(), -pair.second, pair.first);
         }
     }
 
-    std::vector<std::vector<int>> costMatrix(negativeBalance.size(), std::vector<int>(positiveBalance.size(), std::numeric_limits<int>::max()));
+    // Criar a matriz de custo baseada nas distâncias BFS
+    std::vector<std::vector<int>> costMatrix(negativeBalance.size(), 
+                                             std::vector<int>(positiveBalance.size(), 
+                                             std::numeric_limits<int>::max()));
     for (size_t i = 0; i < negativeBalance.size(); ++i) {
         for (size_t j = 0; j < positiveBalance.size(); ++j) {
             costMatrix[i][j] = bfsDistance(subgraph, negativeBalance[i], positiveBalance[j]);
         }
     }
 
+    // Resolver emparelhamento perfeito usando o Algoritmo Húngaro
     HungarianAlgorithm hungarian;
     auto matching = hungarian.solve(costMatrix);
 
+    // Adicionar arestas extras ao subgrafo
     for (size_t i = 0; i < matching.size(); ++i) {
         if (matching[i] != -1) {
             subgraph[negativeBalance[i]].push_back(positiveBalance[matching[i]]);
@@ -379,6 +431,9 @@ std::vector<std::string> Graph::findEulerianCycle(const std::unordered_map<std::
             currentPath.pop();
         }
     }
-    reverseVector(eulerianCycle);
+
+    if (eulerianCycle.front() != eulerianCycle.back()) {
+        eulerianCycle.push_back(eulerianCycle.front()); // Fechar ciclo
+    }
     return eulerianCycle;
 }
