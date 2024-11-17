@@ -1,7 +1,5 @@
 # GeoGraph Analysis
 
-![GeoGraph Analysis Banner](https://via.placeholder.com/800x200.png?text=GeoGraph+Analysis)
-
 **GeoGraph Analysis** is a project for Practical Assignment I in the Algorithms I course. The objective is to solve graph-based modeling and analysis problems applied to a fictional scenario involving state security and invasion prevention. The project involves determining the best capital, identifying secondary battalion locations, and planning patrol routes.
 
 ---
