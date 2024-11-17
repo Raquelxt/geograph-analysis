@@ -1,59 +1,75 @@
 #include "HungarianAlgorithm.hpp"
 
+// Resolve o problema de emparelhamento perfeito de custo mínimo utilizando o Algoritmo Húngaro
 std::vector<int> HungarianAlgorithm::solve(const std::vector<std::vector<int>>& costMatrix) {
-    int n = costMatrix.size();
-    int m = costMatrix[0].size();
+    int numRows = costMatrix.size(); // Número de linhas na matriz de custo
+    int numCols = costMatrix[0].size(); // Número de colunas na matriz de custo
 
-    // Vetores de dualidade
-    std::vector<int> u(n + 1, 0), v(m + 1, 0), p(m + 1, 0), way(m + 1, 0);
+    // Variáveis de dualidade para linhas e colunas
+    std::vector<int> u(numRows + 1, 0), v(numCols + 1, 0);
 
-    for (int i = 1; i <= n; ++i) {
-        std::vector<int> minv(m + 1, std::numeric_limits<int>::max());
-        std::vector<bool> used(m + 1, false);
-        int j0 = 0;
-        p[0] = i;
+    // Vetores para rastrear o emparelhamento e o caminho atual
+    std::vector<int> match(numCols + 1, 0), path(numCols + 1, 0);
 
+    // Itera sobre cada linha para calcular o emparelhamento de custo mínimo
+    for (int row = 1; row <= numRows; ++row) {
+        std::vector<int> minValues(numCols + 1, std::numeric_limits<int>::max());
+        std::vector<bool> visited(numCols + 1, false);
+        int col0 = 0; // Começa pela coluna fictícia
+        match[0] = row; // Emparelha a coluna fictícia com a linha atual
+
+        // Processo iterativo para melhorar o emparelhamento
         do {
-            used[j0] = true;
-            int i0 = p[j0], delta = std::numeric_limits<int>::max(), j1 = 0;
+            visited[col0] = true;
+            int currentRow = match[col0];
+            int minDelta = std::numeric_limits<int>::max();
+            int nextCol = 0;
 
-            for (int j = 1; j <= m; ++j) {
-                if (!used[j]) {
-                    int cur = costMatrix[i0 - 1][j - 1] - u[i0] - v[j];
-                    if (cur < minv[j]) {
-                        minv[j] = cur;
-                        way[j] = j0;
+            // Atualiza os valores mínimos para colunas ainda não visitadas
+            for (int col = 1; col <= numCols; ++col) {
+                if (!visited[col]) {
+                    int currentCost = costMatrix[currentRow - 1][col - 1] - u[currentRow] - v[col];
+
+                    // Atualiza o menor custo e rastreia o caminho
+                    if (currentCost < minValues[col]) {
+                        minValues[col] = currentCost;
+                        path[col] = col0;
                     }
-                    if (minv[j] < delta) {
-                        delta = minv[j];
-                        j1 = j;
+
+                    // Determina a próxima coluna com o menor delta
+                    if (minValues[col] < minDelta) {
+                        minDelta = minValues[col];
+                        nextCol = col;
                     }
                 }
             }
 
-            for (int j = 0; j <= m; ++j) {
-                if (used[j]) {
-                    u[p[j]] += delta;
-                    v[j] -= delta;
+            // Atualiza as variáveis de dualidade e reduz os valores mínimos restantes
+            for (int col = 0; col <= numCols; ++col) {
+                if (visited[col]) {
+                    u[match[col]] += minDelta;
+                    v[col] -= minDelta;
                 } else {
-                    minv[j] -= delta;
+                    minValues[col] -= minDelta;
                 }
             }
 
-            j0 = j1;
-        } while (p[j0] != 0);
+            col0 = nextCol;
+        } while (match[col0] != 0); // Continua até encontrar uma coluna sem emparelhamento
 
+        // Realiza a atualização do emparelhamento
         do {
-            int j1 = way[j0];
-            p[j0] = p[j1];
-            j0 = j1;
-        } while (j0 != 0);
+            int nextCol = path[col0];
+            match[col0] = match[nextCol];
+            col0 = nextCol;
+        } while (col0 != 0);
     }
 
-    std::vector<int> result(n, -1);
-    for (int j = 1; j <= m; ++j) {
-        if (p[j] != 0) {
-            result[p[j] - 1] = j - 1;
+    // Constrói o resultado com o emparelhamento final
+    std::vector<int> result(numRows, -1);
+    for (int col = 1; col <= numCols; ++col) {
+        if (match[col] != 0) {
+            result[match[col] - 1] = col - 1;
         }
     }
 

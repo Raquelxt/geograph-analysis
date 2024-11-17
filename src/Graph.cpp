@@ -1,24 +1,73 @@
 #include "Graph.hpp"
 #include "Kosaraju.hpp"
 #include "EulerianCycle.hpp"
-#include "Utils.hpp"
 #include <queue>
 #include <unordered_set>
 #include <limits>
 
-// Adiciona um nó ao grafo, caso não exista
+// Função Auxiliar: Verifica se um vetor contém um elemento específico
+bool contains(const std::vector<std::string>& vec, const std::string& value) {
+    for (size_t i = 0; i < vec.size(); ++i) {
+        if (vec[i] == value) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Função Auxiliar: Ordena um vetor de strings em ordem lexicográfica
+void sortStrings(std::vector<std::string>& vec) {
+    for (size_t i = 0; i < vec.size(); ++i) {
+        for (size_t j = i + 1; j < vec.size(); ++j) {
+            if (vec[i] > vec[j]) {
+                // Troca manual dos elementos
+                std::string temp = vec[i];
+                vec[i] = vec[j];
+                vec[j] = temp;
+            }
+        }
+    }
+}
+
+// Função Auxiliar: Inverte a ordem dos elementos de um vetor
+void reverseVector(std::vector<std::string>& vec) {
+    size_t start = 0;
+    size_t end = vec.size() - 1;
+    while (start < end) {
+        // Troca manual dos elementos
+        std::string temp = vec[start];
+        vec[start] = vec[end];
+        vec[end] = temp;
+        ++start;
+        --end;
+    }
+}
+
+// Função Auxiliar: Ordena um vetor de rotas (vetores de strings) em ordem lexicográfica
+void sortRoutes(std::vector<std::vector<std::string>>& routes) {
+    for (size_t i = 0; i < routes.size(); ++i) {
+        for (size_t j = i + 1; j < routes.size(); ++j) {
+            if (routes[i] > routes[j]) {
+                std::swap(routes[i], routes[j]);
+            }
+        }
+    }
+}
+
+
+// Adiciona um nó ao grafo, caso ele não exista
 void Graph::addNode(const std::string& location) {
     if (adjacencyList.find(location) == adjacencyList.end()) {
         adjacencyList[location] = {};
     }
 }
 
-// Adiciona uma aresta unidirecional ao grafo
+// Adiciona uma aresta direcionada ao grafo
 void Graph::addEdge(const std::string& from, const std::string& to) {
     adjacencyList[from].push_back(to);
 }
 
-// Identifica a capital como o nó que minimiza a distância total para todos os outros
+// Encontra a capital como o nó que minimiza a soma das distâncias para todos os outros
 std::string Graph::findCapital() {
     std::string bestNode;
     int minTotalDistance = std::numeric_limits<int>::max();
@@ -57,7 +106,7 @@ std::string Graph::findCapital() {
         }
 
         if (totalDistance < minTotalDistance || 
-           (totalDistance == minTotalDistance && start < bestNode)) {
+            (totalDistance == minTotalDistance && start < bestNode)) {
             minTotalDistance = totalDistance;
             bestNode = start;
         }
@@ -65,7 +114,7 @@ std::string Graph::findCapital() {
     return bestNode;
 }
 
-// Encontra os batalhões secundários para garantir conectividade de retorno
+// Determina os batalhões secundários necessários para garantir conectividade de retorno
 std::vector<std::string> Graph::findSecondaryBattalions() {
     std::vector<std::string> secondaryBattalions;
     std::string capital = findCapital();
@@ -115,66 +164,57 @@ std::vector<std::string> Graph::findSecondaryBattalions() {
     return secondaryBattalions;
 }
 
-// Encontra rotas de patrulhamento que percorrem todas as arestas a partir de batalhões
+// Encontra rotas de patrulhamento Eulerianas que cobrem todas as arestas
 std::vector<std::vector<std::string>> Graph::findPatrolRoutes() {
-    std::vector<std::vector<std::string>> routes; // Armazena todas as rotas
-    auto components = Kosaraju::findConnectedComponents(adjacencyList); // Obter as CFCs
+    std::vector<std::vector<std::string>> routes;
+    auto components = Kosaraju::findConnectedComponents(adjacencyList);
 
-    // Identificar os batalhões (capital e secundários)
     std::string capital = findCapital();
     std::vector<std::string> secondaryBattalions = findSecondaryBattalions();
     std::unordered_set<std::string> allBattalions(secondaryBattalions.begin(), secondaryBattalions.end());
     allBattalions.insert(capital);
 
     for (const auto& component : components) {
-        if (component.size() <= 1) continue; // Ignorar CFCs com apenas 1 nó
+        if (component.size() <= 1) continue;
 
-        // Gerar subgrafo para a CFC atual
         auto subgraph = generateSubgraph(component);
-
-        // Verificar balanceamento dos vértices
         auto balance = EulerianCycle::calculateBalance(subgraph);
 
-        // Transformar em Euleriano, se necessário
         bool isEulerian = true;
         for (const auto& pair : balance) {
-            if (pair.second != 0) { // Balanceamento diferente de 0
+            if (pair.second != 0) {
                 isEulerian = false;
                 break;
             }
         }
 
         if (!isEulerian) {
-            EulerianCycle::transformToEulerian(subgraph, balance); // Tornar Euleriano
+            EulerianCycle::transformToEulerian(subgraph, balance);
         }
 
-        // Escolher o nó inicial para o ciclo Euleriano
         std::string startNode;
         for (const auto& node : component) {
             if (allBattalions.count(node)) {
-                startNode = node; // Priorizar um batalhão
+                startNode = node;
                 break;
             }
         }
 
-        // Se nenhum nó do batalhão estiver presente, use o primeiro nó da componente
         if (startNode.empty()) {
             startNode = component.front();
         }
 
-        // Criar rota Euleriana usando Hierholzer a partir de startNode
         auto cycle = EulerianCycle::findCycleFromStart(subgraph, startNode);
         if (!cycle.empty()) {
             routes.push_back(cycle);
         }
     }
 
-    // Ordenar rotas lexicograficamente para saída correta
     sortRoutes(routes);
     return routes;
 }
 
-// Gera um subgrafo baseado em um conjunto de vértices
+// Gera um subgrafo contendo apenas os nós e arestas de um conjunto de vértices
 std::unordered_map<std::string, std::vector<std::string>> Graph::generateSubgraph(const std::vector<std::string>& vertices) {
     std::unordered_map<std::string, std::vector<std::string>> subgraph;
     for (const auto& vertex : vertices) {

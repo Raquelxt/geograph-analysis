@@ -77,9 +77,9 @@ Provide input through a file using standard input redirection:
 The program reads a single state sketch. The format is as follows:
 
 1. The first line contains two integers:
-   - `NC`: Number of urban centers.
-   - `NE`: Number of roads.
-2. The next `NE` lines describe the roads:
+   - `numCenters`: Number of urban centers.
+   - `numEdges`: Number of roads.
+2. The next `numCenters` lines describe the roads:
    - Each line is in the format `C1 C2`, indicating a one-way road from `C1` to `C2`.
 
 ### Output

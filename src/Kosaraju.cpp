@@ -2,6 +2,7 @@
 #include <stack>
 #include <unordered_map>
 
+// Encontra as componentes fortemente conectadas utilizando o algoritmo de Kosaraju
 std::vector<std::vector<std::string>> Kosaraju::findConnectedComponents(
     const std::unordered_map<std::string, std::vector<std::string>>& adjacencyList) {
 
@@ -9,7 +10,7 @@ std::vector<std::vector<std::string>> Kosaraju::findConnectedComponents(
     std::stack<std::string> order;
     std::vector<std::vector<std::string>> components;
 
-    // Função auxiliar para DFS de preenchimento da pilha
+    // Realiza DFS para preencher a pilha com a ordem de finalização
     auto dfsOrder = [&](const std::string& node, auto& dfsOrderRef) -> void {
         visited[node] = true;
         for (const auto& neighbor : adjacencyList.at(node)) {
@@ -20,16 +21,17 @@ std::vector<std::vector<std::string>> Kosaraju::findConnectedComponents(
         order.push(node);
     };
 
+    // Passo 1: Preenche a pilha com a ordem de finalização
     for (const auto& pair : adjacencyList) {
         if (!visited[pair.first]) {
             dfsOrder(pair.first, dfsOrder);
         }
     }
 
-    // Transposição do grafo
+    // Passo 2: Obtém o grafo transposto
     auto transposedGraph = transposeGraph(adjacencyList);
 
-    // Função auxiliar para DFS de componentes
+    // Realiza DFS no grafo transposto para encontrar componentes
     visited.clear();
     auto dfsComponent = [&](const std::string& node, std::vector<std::string>& component, auto& dfsComponentRef) -> void {
         visited[node] = true;
@@ -41,7 +43,7 @@ std::vector<std::vector<std::string>> Kosaraju::findConnectedComponents(
         }
     };
 
-    // Encontrar as componentes
+    // Passo 3: Identifica as componentes fortemente conectadas
     while (!order.empty()) {
         std::string node = order.top();
         order.pop();
@@ -55,6 +57,7 @@ std::vector<std::vector<std::string>> Kosaraju::findConnectedComponents(
     return components;
 }
 
+// Transpõe o grafo (inverte as arestas)
 std::unordered_map<std::string, std::vector<std::string>> Kosaraju::transposeGraph(
     const std::unordered_map<std::string, std::vector<std::string>>& adjacencyList) {
 
