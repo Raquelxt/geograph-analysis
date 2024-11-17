@@ -37,3 +37,14 @@ void reverseVector(std::vector<std::string>& vec) {
         --end;
     }
 }
+
+// Ordena as rotas lexicograficamente
+void sortRoutes(std::vector<std::vector<std::string>>& routes) {
+    for (size_t i = 0; i < routes.size(); ++i) {
+        for (size_t j = i + 1; j < routes.size(); ++j) {
+            if (routes[i] > routes[j]) {
+                std::swap(routes[i], routes[j]);
+            }
+        }
+    }
+}

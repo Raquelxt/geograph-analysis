@@ -232,6 +232,7 @@ std::vector<std::string> Graph::findSecondaryBattalions() {
 }
 
 // Função para encontrar rotas de patrulhamento
+// Função para encontrar rotas de patrulhamento
 std::vector<std::vector<std::string>> Graph::findPatrolRoutes() {
     std::vector<std::vector<std::string>> routes;
     auto components = findConnectedComponents();
@@ -256,10 +257,16 @@ std::vector<std::vector<std::string>> Graph::findPatrolRoutes() {
 
         auto cycle = findEulerianCycle(subgraph);
         if (!cycle.empty()) {
+            // Ordenar o ciclo para atender ao formato esperado
+            if (cycle.front() != cycle.back()) {
+                cycle.push_back(cycle.front());
+            }
             routes.push_back(cycle);
         }
     }
 
+    // Ordenar as rotas para saída correta
+    sortRoutes(routes);
     return routes;
 }
 

@@ -13,4 +13,7 @@ void sortStrings(std::vector<std::string>& vec);
 // Função para inverter um vetor
 void reverseVector(std::vector<std::string>& vec);
 
+// Função para ordenar rotas lexicograficamente
+void sortRoutes(std::vector<std::vector<std::string>>& routes);
+
 #endif // UTILS_HPP
