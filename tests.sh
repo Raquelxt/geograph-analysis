@@ -7,7 +7,7 @@ INPUT_DIR="tests/inputs"
 EXPECTED_DIR="tests/outputs"
 
 
-PROGRAM="./geograph-analysis"
+PROGRAM="./tp1"
 
 TEMP_OUTPUT="temp_output.txt"
 

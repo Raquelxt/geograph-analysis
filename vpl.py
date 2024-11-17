@@ -136,7 +136,7 @@ for i in range(1, 9):
     
     # Inicie o processo
     processo = subprocess.Popen(
-        ["./geograph-analysis"],  # Comando para rodar o script
+        ["./tp1"],  # Comando para rodar o script
         stdin=subprocess.PIPE,            # Redireciona a entrada padrão
         stdout=subprocess.PIPE,           # Redireciona a saída padrão
         stderr=subprocess.PIPE,           # Redireciona o erro padrão (opcional)

@@ -4,43 +4,30 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <unordered_set>
 
 class Graph {
-public:
-    // Adiciona um nó ao grafo
-    void addNode(const std::string& location);
-
-    // Adiciona uma aresta entre dois nós
-    void addEdge(const std::string& from, const std::string& to);
-
-    // Determina a capital do grafo
-    std::string findCapital();
-
-    // Encontra os batalhões secundários necessários
-    std::vector<std::string> findSecondaryBattalions();
-
-    // Encontra as rotas de patrulha
-    std::vector<std::vector<std::string>> findPatrolRoutes();
-
-    // Exibe a lista de adjacência para depuração
-    void display();
-
 private:
-    // Lista de adjacência
     std::unordered_map<std::string, std::vector<std::string>> adjacencyList;
 
-    // Encontra componentes fortemente conectados (algoritmo de Kosaraju)
-    std::vector<std::vector<std::string>> findConnectedComponents();
-
-    // Gera o grafo transposto
-    std::unordered_map<std::string, std::vector<std::string>> transposeGraph();
-
-    // Verifica e transforma um componente em Euleriano
-    void ensureEulerian(std::unordered_map<std::string, std::vector<std::string>>& subgraph);
-
-    // Encontra o ciclo Euleriano em um subgrafo
+    std::unordered_map<std::string, std::vector<std::string>> generateSubgraph(const std::vector<std::string>& vertices);
+    std::unordered_map<std::string, int> calculateBalance(const std::unordered_map<std::string, std::vector<std::string>>& subgraph);
+    void transformToEulerian(std::unordered_map<std::string, std::vector<std::string>>& subgraph, std::unordered_map<std::string, int>& balance);
+    int bfsDistance(const std::unordered_map<std::string, std::vector<std::string>>& graph, const std::string& source, const std::string& target);
     std::vector<std::string> findEulerianCycle(const std::unordered_map<std::string, std::vector<std::string>>& subgraph);
+
+public:
+    void addNode(const std::string& location);
+    void addEdge(const std::string& from, const std::string& to);
+    std::string findCapital();
+    std::vector<std::string> findSecondaryBattalions();
+    std::vector<std::vector<std::string>> findPatrolRoutes();
+    std::vector<std::vector<std::string>> findConnectedComponents();
+    std::unordered_map<std::string, std::vector<std::string>> transposeGraph();
 };
 
-#endif // GRAPH_HPP
+class HungarianAlgorithm {
+public:
+    std::vector<int> solve(const std::vector<std::vector<int>>& costMatrix);
+};
+
+#endif

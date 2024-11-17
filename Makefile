@@ -1,18 +1,28 @@
+# Compilador e flags
 CXX = g++
-CXXFLAGS = -std=c++17 -Iinclude
+CXXFLAGS = -std=c++17 -Wall -Wextra -Werror -Iinclude
 
-SRCS = src/main.cpp src/Graph.cpp
-OBJS = $(SRCS:src/%.cpp=obj/%.o)
-TARGET = geograph-analysis
+# Pastas
+SRC_DIR = src
+OBJ_DIR = obj
+INCLUDE_DIR = include
 
+# Arquivos fontes e objetos
+SRC = $(wildcard $(SRC_DIR)/*.cpp)
+OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRC))
+
+# Nome do executável
+TARGET = tp1
+
+# Regras
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
+$(TARGET): $(OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJ)
 
-obj/%.o: src/%.cpp
-	mkdir -p obj
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(OBJ_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f obj/*.o $(TARGET)
+	rm -rf $(OBJ_DIR) $(TARGET)
