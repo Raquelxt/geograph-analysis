@@ -1,4 +1,4 @@
-#include "HungarianAlgorithm.hpp"
+#include "../include/HungarianAlgorithm.hpp"
 
 // Resolve o problema de emparelhamento perfeito de custo mínimo utilizando o Algoritmo Húngaro
 std::vector<int> HungarianAlgorithm::solve(const std::vector<std::vector<int>>& costMatrix) {

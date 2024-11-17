@@ -1,5 +1,5 @@
-#include "EulerianCycle.hpp"
-#include "HungarianAlgorithm.hpp"
+#include "../include/EulerianCycle.hpp"
+#include "../include/HungarianAlgorithm.hpp"
 #include <queue>
 #include <stack>
 #include <unordered_map>

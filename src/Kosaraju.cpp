@@ -1,4 +1,4 @@
-#include "Kosaraju.hpp"
+#include "../include/Kosaraju.hpp"
 #include <stack>
 #include <unordered_map>
 

@@ -1,6 +1,6 @@
-#include "Graph.hpp"
-#include "Kosaraju.hpp"
-#include "EulerianCycle.hpp"
+#include "../include/Graph.hpp"
+#include "../include/Kosaraju.hpp"
+#include "../include/EulerianCycle.hpp"
 #include <queue>
 #include <unordered_set>
 #include <limits>
