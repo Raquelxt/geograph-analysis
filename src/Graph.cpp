@@ -57,8 +57,9 @@ std::vector<std::vector<std::string>> Graph::findConnectedComponents() {
     return components;
 }
 
-// Gera o grafo transposto
+// Gera a transposição do grafo
 std::unordered_map<std::string, std::vector<std::string>> Graph::transposeGraph() {
+    // Inverte as arestas de direção no grafo
     std::unordered_map<std::string, std::vector<std::string>> transposed;
     for (const auto& pair : adjacencyList) {
         for (const auto& neighbor : pair.second) {
@@ -68,8 +69,9 @@ std::unordered_map<std::string, std::vector<std::string>> Graph::transposeGraph(
     return transposed;
 }
 
-// Implementação do Algoritmo Húngaro para emparelhamento perfeito
+// Algoritmo Húngaro para resolver emparelhamento perfeito mínimo
 std::vector<int> HungarianAlgorithm::solve(const std::vector<std::vector<int>>& costMatrix) {
+    // Resolve o problema de emparelhamento com base em uma matriz de custos
     int n = costMatrix.size();
     int m = costMatrix[0].size();
     std::vector<int> u(n + 1, 0), v(m + 1, 0), p(m + 1, 0), way(m + 1, 0);
@@ -123,20 +125,22 @@ std::vector<int> HungarianAlgorithm::solve(const std::vector<std::vector<int>>& 
     return result;
 }
 
-// Adiciona um nó ao grafo
+// Adiciona um nó ao grafo, caso não exista
 void Graph::addNode(const std::string& location) {
     if (adjacencyList.find(location) == adjacencyList.end()) {
         adjacencyList[location] = {};
     }
 }
 
-// Adiciona uma aresta entre dois nós (direção única)
+// Adiciona uma aresta unidirecional ao grafo
 void Graph::addEdge(const std::string& from, const std::string& to) {
     adjacencyList[from].push_back(to);
 }
 
-// Encontra a capital do grafo
+// Identifica a capital como o nó que minimiza a distância total para todos os outros
 std::string Graph::findCapital() {
+    // Calcula as distâncias de cada nó para todos os outros usando BFS
+    // Retorna o nó com menor soma de distâncias
     std::string bestNode;
     int minTotalDistance = std::numeric_limits<int>::max();
 
@@ -182,8 +186,10 @@ std::string Graph::findCapital() {
     return bestNode;
 }
 
-// Função para encontrar os batalhões secundários
+// Encontra os batalhões secundários para garantir conectividade de retorno
 std::vector<std::string> Graph::findSecondaryBattalions() {
+    // Usa componentes fortemente conectadas para determinar batalhões necessários
+    // Verifica a conectividade de cada componente a partir da capital
     std::vector<std::string> secondaryBattalions;
     std::string capital = findCapital();
 
@@ -232,7 +238,7 @@ std::vector<std::string> Graph::findSecondaryBattalions() {
     return secondaryBattalions;
 }
 
-// Função para encontrar rotas de patrulhamento
+// Encontra rotas de patrulhamento que percorrem todas as arestas a partir de batalhões
 std::vector<std::vector<std::string>> Graph::findPatrolRoutes() {
     std::vector<std::vector<std::string>> routes; // Armazena todas as rotas
     auto components = findConnectedComponents(); // Obter as CFCs
@@ -291,7 +297,9 @@ std::vector<std::vector<std::string>> Graph::findPatrolRoutes() {
     return routes;
 }
 
+// Encontra ciclo Euleriano a partir de um nó específico
 std::vector<std::string> Graph::findEulerianCycleFromStart(
+    // Gera ciclo Euleriano começando pelo nó startNode
     const std::unordered_map<std::string, std::vector<std::string>>& subgraph,
     const std::string& startNode) {
     std::unordered_map<std::string, std::vector<std::string>> tempGraph = subgraph;
@@ -319,7 +327,7 @@ std::vector<std::string> Graph::findEulerianCycleFromStart(
 }
 
 
-// Gera o subgrafo
+// Gera um subgrafo baseado em um conjunto de vértices
 std::unordered_map<std::string, std::vector<std::string>> Graph::generateSubgraph(const std::vector<std::string>& vertices) {
     std::unordered_map<std::string, std::vector<std::string>> subgraph;
     for (const auto& vertex : vertices) {
@@ -335,7 +343,7 @@ std::unordered_map<std::string, std::vector<std::string>> Graph::generateSubgrap
     return subgraph;
 }
 
-// Calcula balanceamento de vértices
+// Calcula o balanceamento de graus dos vértices no subgrafo
 std::unordered_map<std::string, int> Graph::calculateBalance(const std::unordered_map<std::string, std::vector<std::string>>& subgraph) {
     std::unordered_map<std::string, int> balance;
     for (const auto& pair : subgraph) {
@@ -351,7 +359,7 @@ std::unordered_map<std::string, int> Graph::calculateBalance(const std::unordere
     return balance;
 }
 
-// Transforma subgrafo em Euleriano
+// Ajusta o grafo para torná-lo Euleriano
 void Graph::transformToEulerian(std::unordered_map<std::string, std::vector<std::string>>& subgraph, 
                                 std::unordered_map<std::string, int>& balance) {
     std::vector<std::string> positiveBalance, negativeBalance;
@@ -387,7 +395,7 @@ void Graph::transformToEulerian(std::unordered_map<std::string, std::vector<std:
     }
 }
 
-// BFS para calcular distâncias
+// Executa BFS para calcular a distância entre dois nós
 int Graph::bfsDistance(const std::unordered_map<std::string, std::vector<std::string>>& graph, const std::string& source, const std::string& target) {
     std::queue<std::pair<std::string, int>> q;
     std::unordered_map<std::string, bool> visited;
@@ -411,7 +419,7 @@ int Graph::bfsDistance(const std::unordered_map<std::string, std::vector<std::st
     return std::numeric_limits<int>::max();
 }
 
-// Encontra ciclo Euleriano
+// Encontra ciclo Euleriano em um subgrafo usando Hierholzer
 std::vector<std::string> Graph::findEulerianCycle(const std::unordered_map<std::string, std::vector<std::string>>& subgraph) {
     std::unordered_map<std::string, std::vector<std::string>> tempGraph = subgraph;
     std::stack<std::string> currentPath;
