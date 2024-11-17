@@ -1,11 +1,18 @@
-# Simple Makefile example
 CXX = g++
-CXXFLAGS = -Wall -Wextra -Wpedantic -std=c++17
+CXXFLAGS = -std=c++17 -Iinclude
 
-all: tp1
+SRCS = src/main.cpp src/Graph.cpp
+OBJS = $(SRCS:src/%.cpp=obj/%.o)
+TARGET = geograph-analysis
 
-tp1: src/main.cpp src/other_file.cpp
-    $(CXX) $(CXXFLAGS) -o tp1 src/main.cpp src/other_file.cpp
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
+
+obj/%.o: src/%.cpp
+	mkdir -p obj
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-    rm -f tp1
+	rm -f obj/*.o $(TARGET)
